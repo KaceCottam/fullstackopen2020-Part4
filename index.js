@@ -1,42 +1,31 @@
-const express = require('express')
-const app = express()
-const cors = require('cors')
-const mongoose = require('mongoose')
-require('dotenv').config()
+const app = require('./app')
+const http = require('http')
+const config = require('./utils/config')
+const logger = require('./utils/logger')
 
-const blogSchema = mongoose.Schema({
-  title: String,
-  author: String,
-  url: String,
-  likes: Number
+const server = http.createServer(app)
+
+server.listen(config.PORT, () => {
+  logger.info(`Server running on port ${config.PORT}`)
 })
+// app.get('/api/blogs', (_, res) => {
+//   Blog
+//     .find({})
+//     .then(blogs => res.json(blogs))
+//     .catch(error => res.json(error))
+// })
 
-const Blog = mongoose.model('Blog', blogSchema)
+// app.post('/api/blogs', (req, res) => {
+//   const blog = new Blog(req.body)
 
-const mongoURL = process.env.MONGODB_URI
-mongoose.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true })
+//   blog
+//     .save()
+//     .then(result => res.status(201).json(result))
+//     .catch(error => res.json(error))
+// })
 
-app.use(cors())
-app.use(express.json())
-
-app.get('/api/blogs', (_, res) => {
-  Blog
-    .find({})
-    .then(blogs => res.json(blogs))
-    .catch(error => res.json(error))
-})
-
-app.post('/api/blogs', (req, res) => {
-  const blog = new Blog(req.body)
-
-  blog
-    .save()
-    .then(result => res.status(201).json(result))
-    .catch(error => res.json(error))
-})
-
-const PORT = process.env.PORT || 3003
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+// const PORT = process.env.PORT || 3003
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`)
+// })
 

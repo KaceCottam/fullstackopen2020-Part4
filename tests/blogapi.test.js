@@ -54,8 +54,8 @@ describe('HTTP POST', () => {
 
     expect(response.body).toBeDefined()
 
-    const blogs = await api.get('/api/blogs')
-    expect(blogs.body).toHaveLength(helper.initial_blogs.length + 1)
+    const blogs = await helper.blogsInDb()
+    expect(blogs).toHaveLength(helper.initial_blogs.length + 1)
   })
 
   test('HTTP post with no likes defaults to 0', async () => {
@@ -88,9 +88,7 @@ describe('HTTP POST', () => {
 
 describe('HTTP DELETE', () => {
   test('Delete works with valid id', async () => {
-    const response = await api.get('/api/blogs')
-    const blogs = response.body
-    const firstBlog = blogs[0]
+    const firstBlog = await helper.getFirstBlog()
 
     await api.delete(`/api/blogs/${firstBlog.id}`).expect(200)
   })
@@ -99,6 +97,34 @@ describe('HTTP DELETE', () => {
     const invalidId = await helper.nonExistingId()
 
     await api.delete(`/api/blogs/${invalidId}`).expect(200)
+  })
+})
+
+describe('HTTP PUT', () => {
+  test('Put works with valid id', async () => {
+    const firstBlog = await helper.getFirstBlog()
+
+    const newLikes = firstBlog.likes + 1
+
+    const { body } = await api
+      .put(`/api/blogs/${firstBlog.id}`)
+      .send({ likes: newLikes })
+      .expect(200)
+
+    const firstBlogAfter = await helper.getFirstBlog()
+
+    expect(firstBlogAfter.likes).toBe(firstBlog.likes + 1)
+
+    expect(body.likes).toBe(firstBlog.likes + 1)
+  })
+
+  test('Put fails with 404 on invalid id', async () => {
+    const invalidId = await helper.nonExistingId()
+
+    await api
+      .put(`/api/blogs/${invalidId}`)
+      .send({ likes: 0 })
+      .expect(404)
   })
 })
 

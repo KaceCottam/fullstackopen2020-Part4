@@ -37,6 +37,19 @@ blogsRouter.delete('/:id', async (req, res) => {
   res.status(200).end()
 })
 
+blogsRouter.put('/:id', async (req, res) => {
+  const id = req.params.id
+
+  const body = req.body
+
+  try {
+    const updatedBlog = await Blog.findByIdAndUpdate(id, body)
+    res.json(updatedBlog.toJSON())
+  } catch {
+    return res.status(404).end()
+  }
+})
+
 
 module.exports = blogsRouter
 

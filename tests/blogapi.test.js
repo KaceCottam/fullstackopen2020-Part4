@@ -57,6 +57,22 @@ test('HTTP post', async () => {
   expect(blogs.body).toHaveLength(helper.initial_blogs.length + 1)
 })
 
+test('HTTP post with no likes defaults to 0', async () => {
+  const newBlog = new Blog({
+    title: "Something random",
+    author: "Kendell",
+    url: "www.virtuallens.com",
+  })
+
+  const response = await api.post('/api/blogs').send(newBlog)
+
+  const body = response.body
+
+  expect(body.likes).toBeDefined()
+  expect(body.likes).toBe(0)
+
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })

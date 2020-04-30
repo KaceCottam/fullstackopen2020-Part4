@@ -37,6 +37,26 @@ test('all blogs have id, but not _id', async () => {
   })
 })
 
+test('HTTP post', async () => {
+  const newBlog = new Blog({
+    title: "Something random",
+    author: "Kendell",
+    url: "www.virtuallens.com",
+    likes: 100,
+  })
+
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  expect(response.body).toBeDefined()
+
+  const blogs = await api.get('/api/blogs')
+  expect(blogs.body).toHaveLength(helper.initial_blogs.length + 1)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })

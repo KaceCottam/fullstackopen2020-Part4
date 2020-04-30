@@ -37,51 +37,69 @@ test('all blogs have id, but not _id', async () => {
   })
 })
 
-test('HTTP post', async () => {
-  const newBlog = new Blog({
-    title: "Something random",
-    author: "Kendell",
-    url: "www.virtuallens.com",
-    likes: 100,
+describe('HTTP POST', () => {
+  test('HTTP post works as intended', async () => {
+    const newBlog = new Blog({
+      title: "Something random",
+      author: "Kendell",
+      url: "www.virtuallens.com",
+      likes: 100,
+    })
+
+    const response = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    expect(response.body).toBeDefined()
+
+    const blogs = await api.get('/api/blogs')
+    expect(blogs.body).toHaveLength(helper.initial_blogs.length + 1)
   })
 
-  const response = await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
+  test('HTTP post with no likes defaults to 0', async () => {
+    const newBlog = new Blog({
+      title: "Something random",
+      author: "Kendell",
+      url: "www.virtuallens.com"
+    })
 
-  expect(response.body).toBeDefined()
+    const response = await api.post('/api/blogs').send(newBlog)
 
-  const blogs = await api.get('/api/blogs')
-  expect(blogs.body).toHaveLength(helper.initial_blogs.length + 1)
+    const body = response.body
+
+    expect(body.likes).toBeDefined()
+    expect(body.likes).toBe(0)
+
+  })
+
+  test('HTTP post with bad object', async () => {
+    const newBlog = new Blog({
+      url: "www.virtuallens.com"
+    })
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+  })
 })
 
-test('HTTP post with no likes defaults to 0', async () => {
-  const newBlog = new Blog({
-    title: "Something random",
-    author: "Kendell",
-    url: "www.virtuallens.com"
+describe('HTTP DELETE', () => {
+  test('Delete works with valid id', async () => {
+    const response = await api.get('/api/blogs')
+    const blogs = response.body
+    const firstBlog = blogs[0]
+
+    await api.delete(`/api/blogs/${firstBlog.id}`).expect(200)
   })
 
-  const response = await api.post('/api/blogs').send(newBlog)
+  test('Delete works with invalid id', async () => {
+    const invalidId = await helper.nonExistingId()
 
-  const body = response.body
-
-  expect(body.likes).toBeDefined()
-  expect(body.likes).toBe(0)
-
-})
-
-test('HTTP post with bad object', async () => {
-  const newBlog = new Blog({
-    url: "www.virtuallens.com"
+    await api.delete(`/api/blogs/${invalidId}`).expect(200)
   })
-
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(400)
 })
 
 afterAll(() => {

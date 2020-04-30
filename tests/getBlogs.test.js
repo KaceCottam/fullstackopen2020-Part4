@@ -28,6 +28,15 @@ test('all blogs returned from GET', async () => {
   expect(response.body).toHaveLength(helper.initial_blogs.length)
 })
 
+test('all blogs have id, but not _id', async () => {
+  const response = await api.get('/api/blogs')
+  const blogs = response.body
+  blogs.forEach(blog => {
+    expect(blog.id).toBeDefined()
+    expect(blog._id).not.toBeDefined()
+  })
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })

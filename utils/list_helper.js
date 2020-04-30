@@ -1,4 +1,4 @@
-const { last, sortBy, groupBy, map, reduce, sum, chain } = require('lodash')
+const { last, sortBy, groupBy, map, reduce, sum, chain, identity, first, _ } = require('lodash')
 
 const dummy = () => {
  return 1
@@ -20,8 +20,17 @@ const favoriteBlog = blogs => {
 
 const mostBlogs = blogs => {
   if (blogs.length === 0) return undefined
-  const auth = last(sortBy(groupBy(map(blogs, 'author')), 'length'))
-  return { author: auth[0], blogs: auth.length }
+  // const auth = last(sortBy(groupBy(map(blogs, 'author'), identity), 'length'))
+  //
+
+  const auth = chain(blogs)
+    .map('author')
+    .groupBy(identity)
+    .map(m => ({ author: first(m), blogs: m.length }))
+    .reduce((acc, i) => acc.blogs > i.blogs ? acc : i)
+    .value()
+
+  return auth
 }
 
 const mostLikes = blogs => blogs.length === 0

@@ -11,6 +11,10 @@ blogsRouter.post('/', async (req, res) => {
 
   const { title, author, url, likes } = body
 
+  if ( !title || !author || !url ) {
+    return res.status(400).end()
+  }
+
   const newBlog = {
     title,
     author,

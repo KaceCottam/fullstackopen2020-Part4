@@ -61,7 +61,7 @@ test('HTTP post with no likes defaults to 0', async () => {
   const newBlog = new Blog({
     title: "Something random",
     author: "Kendell",
-    url: "www.virtuallens.com",
+    url: "www.virtuallens.com"
   })
 
   const response = await api.post('/api/blogs').send(newBlog)
@@ -71,6 +71,17 @@ test('HTTP post with no likes defaults to 0', async () => {
   expect(body.likes).toBeDefined()
   expect(body.likes).toBe(0)
 
+})
+
+test('HTTP post with bad object', async () => {
+  const newBlog = new Blog({
+    url: "www.virtuallens.com"
+  })
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
 })
 
 afterAll(() => {

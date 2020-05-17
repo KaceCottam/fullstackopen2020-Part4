@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs')
 const userRouter = require('express').Router()
 const User = require('../models/user')
 
-userRouter.post('/', async (req, res) => {
+userRouter.post('/', async (req, res, next) => {
   const { username, name, password } = req.body
 
   if(password.length <= 3) {
@@ -12,10 +12,14 @@ userRouter.post('/', async (req, res) => {
   const salts = 10
   const passhash = await bcrypt.hash(password, salts)
 
-  const newUser = User({ name, username, passhash })
+  const newUser = new User({ name, username, passhash })
 
-  await newUser.save()
-  res.json(newUser.toJSON())
+  try {
+    const savedUser = await newUser.save()
+  } catch (e) {
+    next(e)
+  }
+  res.json(savedUser.toJSON())
 })
 
 userRouter.get('/', async (_, res) => {

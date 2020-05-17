@@ -43,8 +43,9 @@ blogsRouter.put('/:id', async (req, res) => {
   const body = req.body
 
   try {
-    const updatedBlog = await Blog.findByIdAndUpdate(id, body)
-    res.json(updatedBlog.toJSON())
+    await Blog.findByIdAndUpdate(id, body)
+    const newBlog = await Blog.findById(id)
+    res.json(newBlog.toJSON())
   } catch {
     return res.status(404).end()
   }

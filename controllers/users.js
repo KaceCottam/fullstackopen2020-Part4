@@ -16,10 +16,10 @@ userRouter.post('/', async (req, res, next) => {
 
   try {
     const savedUser = await newUser.save()
+    res.json(savedUser.toJSON())
   } catch (e) {
     next(e)
   }
-  res.json(savedUser.toJSON())
 })
 
 userRouter.get('/', async (_, res) => {
